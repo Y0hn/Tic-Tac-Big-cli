@@ -6,28 +6,90 @@ using System.Threading.Tasks;
 
 namespace Tic_Tac_Big
 {
-    class Program
-{
-    void Main()
+    internal class Program
     {
-        // inicialization
+        static void Main(string[] args)
+        {
+            BattleField pole = new BattleField();
+
+            while (true)
+            {
+                //Console.Clear();
+                pole.WriteOut();
+
+                do
+                {
+                    Console.Write("Zadaj Hodnotu: ");
+                }
+                while (!pole.Turn(int.Parse(Console.ReadLine())));
+            }
+        }
     }
-}
     class BattleField
     {
+        /**           ***{ GRID DESIGN }***           **      
+            
+                |   |    |    |   |    |    |   |   
+             ---+---+--- | ---+---+--- | ---+---+---
+                |   |    |    |   |    |    |   |   
+             ---+---+--- | ---+---+--- | ---+---+---
+                |   |    |    |   |    |    |   |   
+            -------------+-------------+-------------
+                |   |    |    |   |    |    |   |   
+             ---+---+--- | ---+---+--- | ---+---+---
+                |   |    |    |   |    |    |   |   
+             ---+---+--- | ---+---+--- | ---+---+---
+                |   |    |    |   |    |    |   |    
+            -------------+-------------+-------------
+                |   |    |    |   |    |    |   |   
+             ---+---+--- | ---+---+--- | ---+---+---
+                |   |    |    |   |    |    |   |   
+             ---+---+--- | ---+---+--- | ---+---+---
+                |   |    |    |   |    |    |   |   
+         */
         static int numberOfBatles = 0;
         Cellar[] grid;
-        protected static readonly Dictionary<string, string> players = new Dictionary<string, string>()
+        public static readonly Dictionary<byte, string> players = new Dictionary<byte, string>()
         {
-            { "1", "X" },
-            { "2", "O" },
-            { "0X"," \\   / "},
-            { "2X","   x   "},
-            { "3X"," /   \\ "},
-            { "0O","  ---  "},
-            { "1O"," (   ) "},
-            { "2O","  ---  "},
+            { 1, "X" },
+            { 2, "O" },
 
+            { 10, "__   __   " },
+            { 11, "\\ \\ / /   " },
+            { 12, " \\ V /    " },
+            //{ 13, "  > <     " },
+            { 14, " / . \\    " },
+            { 15, "/_/ \\_\\   " },
+
+            { 20, "   ___    " },
+            { 21, " .'   `.  " },
+            { 22, "/  .-.  \\ " },
+            //{ 23, "| |   | | " },
+            { 24, "\\  `-'  / " },
+            { 25, " `.___.'  " },
+
+            { 50, "   |   |   " },
+            { 51, "---+---+---" },
+            { 52, "   |   |   " },
+            { 53, "---+---+---" },
+            { 54, "   |   |   " }
+        };
+        private static readonly Dictionary<string, string> frame = new Dictionary<string, string>()
+        {
+            { "MainFrameHor", "-------------+-------------+-------------" },
+            { "MainFrameVer", " |" },
+            { "MainFrameVer1", " |" },
+            { "InnerFrameHor", " ---+---+---" },
+            { "InnerFrameVer", "|" },
+        };
+        private static readonly Dictionary<string, ConsoleColor> colorPalet = new Dictionary<string, ConsoleColor>()
+        {
+            { "MainFrame", ConsoleColor.Yellow },
+            { "InnerFrame", ConsoleColor.White },
+            { "Previosly", ConsoleColor.Gray },
+            { "Active", ConsoleColor.Blue },
+            { "Player1", ConsoleColor.Red },
+            { "Player2", ConsoleColor.Blue },
         };
 
         public BattleField()
@@ -40,6 +102,66 @@ namespace Tic_Tac_Big
             }
         }
 
+        public bool Turn(int i)
+        {
+            return grid[i].WriteInCell(0, 1);
+        }
+
+        public void WriteOut(bool free = false)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        for (int l = 0; l < 3; l++)
+                        {
+                            if (l == 0) 
+                                Console.Write(" ");
+
+                            string s = grid[i * 3 + j].GetCellValue(k * 3 + l).ToString();
+                            if (s == players[1])
+                                Console.ForegroundColor = colorPalet["Player1"];
+                            else if (s == players[2])
+                                Console.ForegroundColor = colorPalet["Player2"];
+                            Console.Write(" " + s  + " ");
+                            if (l != 2)
+                            {
+                                Console.ForegroundColor = colorPalet["InnerFrame"];
+                                Console.Write(frame["InnerFrameVer"]);
+                            }
+                        }
+                        if (k != 2)
+                        {
+                            Console.ForegroundColor = colorPalet["MainFrame"];
+                            Console.Write(frame["MainFrameVer"]);
+                        }
+                    }
+                    if (j != 2)
+                    {
+                        // Odelenie Riadkov Cramci cellov
+                        Console.WriteLine("");
+                        Console.ForegroundColor = colorPalet["InnerFrame"];
+                        Console.Write(frame["InnerFrameHor"]);
+                        Console.ForegroundColor = colorPalet["MainFrame"];
+                        Console.Write(frame["MainFrameVer1"]);
+                        Console.ForegroundColor = colorPalet["InnerFrame"];
+                        Console.Write(frame["InnerFrameHor"]);
+                        Console.ForegroundColor = colorPalet["MainFrame"];
+                        Console.Write(frame["MainFrameVer1"]);
+                        Console.ForegroundColor = colorPalet["InnerFrame"];
+                        Console.Write(frame["InnerFrameHor"]);
+                    }
+                    Console.WriteLine("");
+                }
+                if (i != 2)
+                {
+                    Console.ForegroundColor = colorPalet["MainFrame"];
+                    Console.WriteLine(frame["MainFrameHor"]);
+                }
+            }
+        }
         private class Cellar
         {
             Cell[] grid;
@@ -57,6 +179,10 @@ namespace Tic_Tac_Big
                 finished = false;
                 active = false;
                 winner = ' ';
+            }
+            public char GetCellValue(int id)
+            {
+                return grid[id].GetValue();
             }
             public bool WinCheck()
             {
@@ -88,6 +214,14 @@ namespace Tic_Tac_Big
 
                 return ver || hor || dia;
             }
+            public bool WriteInCell(int cellID, byte player)
+            {
+                if (grid[cellID].ocupied)
+                    return false;
+
+                grid[cellID].SetValue(players[player].ToCharArray()[0]);
+                return true;
+            }
             public string ReadRow(int row)
             {
                 if (!finished)
@@ -97,7 +231,7 @@ namespace Tic_Tac_Big
                 }
                 else
                 {
-                    return players[winner + row.ToString()];
+                    return players[1];
                 }
             }
             private class Cell
