@@ -11,7 +11,7 @@ namespace Tic_Tac_Big
         static void Main(string[] args)
         {
             BattleField pole = new BattleField();
-
+            int input;
             while (true)
             {
                 //Console.Clear();
@@ -19,9 +19,10 @@ namespace Tic_Tac_Big
 
                 do
                 {
-                    Console.Write("Zadaj Hodnotu: ");
+                    Console.Write("\n\n\nZadaj id active pola: ");
                 }
-                while (!pole.Turn(int.Parse(Console.ReadLine())));
+                while (!int.TryParse(Console.ReadLine(), out input));
+                pole.SetCellarActive(input);
             }
         }
     }
@@ -49,7 +50,7 @@ namespace Tic_Tac_Big
          */
         static int numberOfBatles = 0;
         Cellar[] grid;
-        public static readonly Dictionary<byte, string> players = new Dictionary<byte, string>()
+        public static readonly Dictionary<int, string> players = new Dictionary<int, string>()
         {
             { 1, "X" },
             { 2, "O" },
@@ -57,16 +58,14 @@ namespace Tic_Tac_Big
             { 10, "__   __   " },
             { 11, "\\ \\ / /   " },
             { 12, " \\ V /    " },
-            //{ 13, "  > <     " },
-            { 14, " / . \\    " },
-            { 15, "/_/ \\_\\   " },
+            { 13, " / . \\    " },
+            { 14, "/_/ \\_\\   " },
 
             { 20, "   ___    " },
             { 21, " .'   `.  " },
             { 22, "/  .-.  \\ " },
-            //{ 23, "| |   | | " },
-            { 24, "\\  `-'  / " },
-            { 25, " `.___.'  " },
+            { 23, "\\  `-'  / " },
+            { 24, " `.___.'  " },
 
             { 50, "   |   |   " },
             { 51, "---+---+---" },
@@ -87,9 +86,12 @@ namespace Tic_Tac_Big
             { "MainFrame", ConsoleColor.Yellow },
             { "InnerFrame", ConsoleColor.White },
             { "Previosly", ConsoleColor.Gray },
-            { "Active", ConsoleColor.Blue },
+            { "ActiveFrame", ConsoleColor.Blue },
+            { "X", ConsoleColor.Red },
             { "Player1", ConsoleColor.Red },
+            { "O", ConsoleColor.Blue },
             { "Player2", ConsoleColor.Blue },
+            { "Neutral", ConsoleColor.White },
         };
 
         public BattleField()
@@ -106,29 +108,51 @@ namespace Tic_Tac_Big
         {
             return grid[i].WriteInCell(0, 1);
         }
-
+        public void SetCellarActive(int id)
+        {
+            if (id < grid.Length)
+                grid[id].active = true;
+        }
         public void WriteOut(bool free = false)
         {
+            // Pocet Cellarov 9x3 na vysku MainFrame
             for (int i = 0; i < 3; i++)
             {
+                // Pocet Cellarov 9x1 na vysku LongInnerFrame
                 for (int j = 0; j < 3; j++)
                 {
+                    // Pocet Cell 3x1 na sirku Cellarov
                     for (int k = 0; k < 3; k++)
                     {
+                        // Pocet Cell 1x1 na sirku LongCell
                         for (int l = 0; l < 3; l++)
                         {
-                            if (l == 0) 
+                            // first element in row
+                            if (l == 0)
                                 Console.Write(" ");
 
                             string s = grid[i * 3 + j].GetCellValue(k * 3 + l).ToString();
-                            if (s == players[1])
+
+                            if      (s == players[1])
                                 Console.ForegroundColor = colorPalet["Player1"];
                             else if (s == players[2])
                                 Console.ForegroundColor = colorPalet["Player2"];
-                            Console.Write(" " + s  + " ");
+                            else if (grid[i * 3 + j].active)
+                            {
+                                Console.ForegroundColor = colorPalet["Neutral"];
+                                s = (j * 3 + l + 1).ToString();
+                                //s = n[k].ToString();
+                            }
+                            else
+                                s = " ";
+
+                            Console.Write(" " + s + " ");
                             if (l != 2)
                             {
-                                Console.ForegroundColor = colorPalet["InnerFrame"];
+                                if (grid[i * 3 + j].active)
+                                    Console.ForegroundColor = colorPalet["ActiveFrame"];
+                                else
+                                    Console.ForegroundColor = colorPalet["InnerFrame"];
                                 Console.Write(frame["InnerFrameVer"]);
                             }
                         }
@@ -138,23 +162,75 @@ namespace Tic_Tac_Big
                             Console.Write(frame["MainFrameVer"]);
                         }
                     }
-                    if (j != 2)
+                    // Odelenie Riadkov v ramci Inner Framu
+                    if (j != 2)  
                     {
-                        // Odelenie Riadkov Cramci cellov
                         Console.WriteLine("");
-                        Console.ForegroundColor = colorPalet["InnerFrame"];
-                        Console.Write(frame["InnerFrameHor"]);
+                        if (!grid[i * 3+j].finished)
+                        {
+                            if (grid[i * 3 + j].active)
+                                Console.ForegroundColor = colorPalet["ActiveFrame"];
+                            else
+                                Console.ForegroundColor = colorPalet["InnerFrame"];
+                            Console.Write(frame["InnerFrameHor"]);
+                        }
+                        else
+                        {
+                            string w = grid[i * 3+j].winner.ToString();
+                            int ww = 0;
+                            Console.ForegroundColor = colorPalet[w];
+                            if (w.Equals(players[1]))
+                                ww = 10;
+                            else
+                                ww = 20;
+                            Console.Write(players[ww+j*2]);
+                        }
                         Console.ForegroundColor = colorPalet["MainFrame"];
                         Console.Write(frame["MainFrameVer1"]);
-                        Console.ForegroundColor = colorPalet["InnerFrame"];
-                        Console.Write(frame["InnerFrameHor"]);
+                        if (!grid[i * 3+1].finished)
+                        {
+                            if (grid[i * 3 + j].active)
+                                Console.ForegroundColor = colorPalet["ActiveFrame"];
+                            else
+                                Console.ForegroundColor = colorPalet["InnerFrame"];
+                            Console.Write(frame["InnerFrameHor"]);
+                        }
+
+                        else
+                        {
+                            string w = grid[i * 3+1].winner.ToString();
+                            int ww = 0;
+                            Console.ForegroundColor = colorPalet[w];
+                            if (w.Equals(players[1]))
+                                ww = 10;
+                            else
+                                ww = 20;
+                            Console.Write(players[ww + j * 2]);
+                        }
                         Console.ForegroundColor = colorPalet["MainFrame"];
                         Console.Write(frame["MainFrameVer1"]);
-                        Console.ForegroundColor = colorPalet["InnerFrame"];
-                        Console.Write(frame["InnerFrameHor"]);
+                        if (!grid[i * 3+2].finished)
+                        {
+                            Console.ForegroundColor = colorPalet["InnerFrame"];
+                            Console.Write(frame["InnerFrameHor"]);
+                        }
+
+                        else
+                        {
+                            string w = grid[i * 3+2].winner.ToString();
+                            int ww = 0;
+                            Console.ForegroundColor = colorPalet[w];
+                            if (w.Equals(players[1]))
+                                ww = 10;
+                            else
+                                ww = 20;
+                            Console.Write(players[ww + j * 2]);
+                        }
                     }
+                    // New Line
                     Console.WriteLine("");
                 }
+                // MainFrame Line
                 if (i != 2)
                 {
                     Console.ForegroundColor = colorPalet["MainFrame"];
@@ -166,8 +242,8 @@ namespace Tic_Tac_Big
         {
             Cell[] grid;
             public bool finished { get; set; }
-            bool active;
-            char winner;
+            public char winner;
+            public bool active;
 
             public Cellar()
             {
