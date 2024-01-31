@@ -1,34 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System;
 
 namespace Tic_Tac_Big
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             BattleField pole = new BattleField();
-            int input;
-            while (true)
+            Console.ForegroundColor = ConsoleColor.White;
+            int input, playerTurn = 1;
+
+            while (!pole.WinnerCheck())
             {
                 Console.Clear();
                 pole.WriteOut();
+                Console.WriteLine("\n");
+                if (!pole.IsCellarActive())
+                {
+                    GetInput($"Choose to set active for player{playerTurn}: ", out input, 1, 10);
+                    pole.MakeCellarActive(input-1);
+                }
+                else
+                {
+                    GetInput($"Place player {playerTurn} into acitve: ", out input, 1, 10);
+                    pole.PlaceIntoActive(input-1, playerTurn);
+                }
+
+                // Change Turns
+                if      (playerTurn == 1)
+                    playerTurn = 2;
+                else // if (playerTurn == 2)
+                    playerTurn = 1;
+            }
+
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n\n\t\tTHE WINNER IS YOU !!");
+            Console.ReadKey();
+        }
+        static void GetInput(string mess, out int input, int min = -1, int max = -1)
+        {
+            /// Does not include max numbers 
+            do
+            {
                 do
                 {
-                    Console.Write("\n\n\nZadaj id active pola: ");
+                    Console.Write(mess);
                 }
                 while (!int.TryParse(Console.ReadLine(), out input));
-                   
-                pole.MakeWinInCellar(input);
-
-                if (pole.WinnerCheck())
-                    Console.Write("VYHRA");
-
-                Console.ReadKey();
             }
+            while (!((min == -1 || min <= input) && (max == -1 || input < max)));
         }
     }
     class BattleField
@@ -55,7 +77,7 @@ namespace Tic_Tac_Big
          */
         static int numberOfBatles = 0;
         Cellar[] grid;
-        public static readonly Dictionary<int, string> players = new Dictionary<int, string>()
+        private static readonly Dictionary<int, string> players = new Dictionary<int, string>()
         {
             { 1, "X" },
             { 2, "O" },
@@ -275,14 +297,6 @@ namespace Tic_Tac_Big
             }
             Console.ForegroundColor = prevColor;
         }
-        public void MakeWinInCellar(int id, char winner = 'O')
-        {
-            if (id < grid.Length)
-            {
-                grid[id].winner = winner;
-                grid[id].finished = true;
-            }
-        }
         public bool WinnerCheck()
         {
             bool ver = false;
@@ -317,13 +331,40 @@ namespace Tic_Tac_Big
             */
             return ver || hor || dia;
         }
-        public void SetCellarActive(int id)
+        public bool PlaceIntoActive(int id, int player)
+        {
+            int act = GetActiveCellar();
+            if (grid[act].WriteInCell(id, player))
+            {
+                ChangeActiveCellar(id);
+                if (grid[act].WinCheck())
+                {
+                    grid[act].finished = true;
+                    grid[act].winner = players[player].ToCharArray()[0];
+                }
+                return true;
+            }
+            return false;
+        }
+        public bool IsCellarActive()
+        {
+            return GetActiveCellar() != -1;
+        }
+        public bool MakeCellarActive(int id)
+        {
+            if (grid[id].finished)
+                return false;
+
+            grid[id].active = true;
+            return true;
+        }
+        private void ChangeActiveCellar(int id)
         {
             int i = GetActiveCellar();
             if (i >= 0)
                 grid[i].active = false;
 
-            if (id < grid.Length)
+            if (!grid[id].finished)
                 grid[id].active = true;
         }
         private int GetActiveCellar()
@@ -389,7 +430,7 @@ namespace Tic_Tac_Big
 
                 return ver || hor || dia;
             }
-            public bool WriteInCell(int cellID, byte player)
+            public bool WriteInCell(int cellID, int player)
             {
                 if (grid[cellID].ocupied)
                     return false;
