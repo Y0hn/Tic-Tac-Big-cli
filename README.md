@@ -10,6 +10,6 @@
 
 ## Available on:
 <p>
-  <a href = "https://github.com/Y0hn/Tic-Tac-Big/releases/download/1.0/Tic-Tac-Big.exe">Download Latest</a>
-  <a href = "https://github.com/Y0hn/Tic-Tac-Big/releases/latest">Latest release</a>
+  <a href = "https://github.com/Y0hn/Tic-Tac-Big-cli/releases/download/1.0/Tic-Tac-Big.exe">Download Latest</a>
+  <a href = "https://github.com/Y0hn/Tic-Tac-Big-cli/releases/latest">Latest release</a>
 </p>
