@@ -1,6 +1,7 @@
-# Tic-Tac-Big
+# Tic-Tac-Big-cli
 <p>
-  Game of TicTacToe made from 3 by 3 grid made of 3 by 3 girds of single cells.   
+  Game of TicTacToe made from 3 by 3 grid made of 3 by 3 girds of single cells. 
+  All in command line.
 </p> <p>
   Basicaly Big Game of TicTacToe. 
 </p>
@@ -10,9 +11,7 @@
 
 ## Available on:
 <p>
-  <a href = "https://github.com/Y0hn/Tic-Tac-Big-cli/releases/download/1.0/Tic-Tac-Big.exe">Download Latest</a>
-  <a href = "https://github.com/Y0hn/Tic-Tac-Big-cli/releases/latest">Latest release</a>
-</p>
-<p>
-  <a href = "https://github.com/Y0hn/Tic-Tac-Big">Try something similiar</a>
+  <a href = "https://github.com/Y0hn/Tic-Tac-Big-cli/releases/download/1.0/Tic-Tac-Big.exe">⏬Download Latest⏬</a>
+</p><b><p>
+  <a href = "https://github.com/Y0hn/Tic-Tac-Big">🟩Try something similiar🟩</a>
 </p>
