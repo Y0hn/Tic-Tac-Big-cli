@@ -351,8 +351,6 @@ namespace Tic_Tac_Big
             if (grid[act].WriteInCell(id, player))
             {
                 ChangeActiveCellar(id);
-                if (act == id)
-                    grid[id].active = false;
                 if (grid[act].WinCheck())
                 {
                     grid[act].finished = true;
