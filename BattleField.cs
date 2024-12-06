@@ -482,4 +482,8 @@ namespace Tic_Tac_Big
             }
         }
     }
+    enum Victory
+    {
+        X, O, Tie
+    }
 }
